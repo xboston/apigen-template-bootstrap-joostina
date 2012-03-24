@@ -548,3 +548,7 @@ div.alert-info a{
 .summary td:first-child {
 	text-align: right;
 }
+
+#packages.summary td:first-child, #namespaces.summary td:first-child, .inherited.summary td:first-child, .used.summary td:first-child {
+	text-align: left;
+}
