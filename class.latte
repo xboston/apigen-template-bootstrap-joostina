@@ -354,7 +354,7 @@ the file LICENSE.md that was distributed with this source code.
 
 		{foreach $class->usedProperties as $traitName => $properties}
 		<h3>Properties used from <a href="{$traitName|classUrl}#properties" n:tag-if="$template->getClass($traitName)">{$traitName}</a></h3>
-		<table class="summary table table-bordered table-striped" id="methods-inherited">
+		<table class="summary table table-bordered table-striped" id="trait-inherited">
 		<tr>
 		<td><code>
 		{foreach $properties as $property}

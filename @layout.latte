@@ -17,17 +17,27 @@ the file LICENSE.md that was distributed with this source code.
 
 	<title>{include #title}{if 'overview' !== $active && $config->title} | {$config->title}{/if}</title>
 
-	{var elementListJs = 'jquery.min.js'}
-	<script type="text/javascript" src="{$elementListJs|staticFile}"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 	{var combinedJs = 'resources/combined.js'}
 	<script type="text/javascript" src="{$combinedJs|staticFile}"></script>
 	{var elementListJs = 'elementlist.js'}
 	<script type="text/javascript" src="{$elementListJs|staticFile}"></script>
-	{var styleCss = 'resources/bootstrap.css'}
-	<link rel="stylesheet" type="text/css" media="all" href="{$styleCss|staticFile}">
 	{var styleCss = 'resources/style.css'}
+	<link rel="stylesheet" type="text/css" media="all" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css">
 	<link rel="stylesheet" type="text/css" media="all" href="{$styleCss|staticFile}">
 	<link n:if="$config->googleCseId" rel="search" type="application/opensearchdescription+xml" title="{$config->title}" href="{$config->baseUrl}/opensearch.xml">
+
+	<script n:if="$config->googleAnalytics" type="text/javascript">
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', {$config->googleAnalytics}]);
+		_gaq.push(['_trackPageview']);
+
+		(function() {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		})();
+	</script>
 </head>
 
 <body>
@@ -111,67 +121,50 @@ the file LICENSE.md that was distributed with this source code.
 		<div id="groups">
 			{if $namespaces}
 			<h3>Namespaces</h3>
-			<ul>
-				{foreach $namespaces as $item}
-				<li n:class="$namespace === $item || 0 === strpos($namespace, $item . '\\') ? active, $config->main && 0 === strpos($item, $config->main) ? main"><a href="{$item|namespaceUrl}">{$item|subnamespaceName}</a>
-					{if substr_count($iterator->nextValue, '\\') > substr_count($item, '\\')}
-						<span></span>
-						<ul>
-					{else}
-						</li>
-						{if substr_count($iterator->nextValue, '\\') < substr_count($item, '\\')}
-							{!'</ul></li>'|repeat:substr_count($item, '\\') - substr_count($iterator->nextValue, '\\')}
-						{/if}
-					{/if}
-				{/foreach}
-			</ul>
+			{include #group, groups => $namespaces, actualGroup => $namespace}
 			{elseif $packages}
 			<h3>Packages</h3>
 			{include #group, groups => $packages, actualGroup => $package}
 			{/if}
 		</div>
 
+		<hr n:if="($namespaces || $packages) && ($classes || $interfaces || $traits || $exceptions || $constants || $functions)">
+
+		{define #elements}
+			<ul>
+				<li n:foreach="$elements as $element" n:class="$activeElement === $element ? active"><a n:class="$element->deprecated ? deprecated, !$element->valid ? invalid" href="{$element|elementUrl}">{if $namespace}{$element->shortName}{else}{$element->name}{/if}</a></li>
+			</ul>
+		{/define}
+
 		<div id="elements">
 			{if $classes}
 			<h3>Classes</h3>
-			<ul>
-				<li n:foreach="$classes as $item" n:class="$class === $item ? active, $item->deprecated ? deprecated"><a href="{$item|classUrl}">{if $namespace}{$item->shortName}{else}{$item->name}{/if}</a></li>
-			</ul>
+			{include #elements, elements => $classes, activeElement => $class}
 			{/if}
 
 			{if $interfaces}
 			<h3>Interfaces</h3>
-			<ul>
-				<li n:foreach="$interfaces as $item" n:class="$class === $item ? active, $item->deprecated ? deprecated"><a href="{$item|classUrl}">{if $namespace}{$item->shortName}{else}{$item->name}{/if}</a></li>
-			</ul>
+			{include #elements, elements => $interfaces, activeElement => $class}
 			{/if}
 
 			{if $traits}
 			<h3>Traits</h3>
-			<ul>
-				<li n:foreach="$traits as $item" n:class="$class === $item ? active, $item->deprecated ? deprecated"><a href="{$item|classUrl}">{if $namespace}{$item->shortName}{else}{$item->name}{/if}</a></li>
-			</ul>
+			{include #elements, elements => $traits, activeElement => $class}
 			{/if}
 
 			{if $exceptions}
 			<h3>Exceptions</h3>
-			<ul>
-				<li n:foreach="$exceptions as $item" n:class="$class === $item ? active, $item->deprecated ? deprecated"><a href="{$item|classUrl}">{if $namespace}{$item->shortName}{else}{$item->name}{/if}</a></li>
-			</ul>
+			{include #elements, elements => $exceptions, activeElement => $class}
 			{/if}
 
 			{if $constants}
 			<h3>Constants</h3>
-			<ul>
-				<li n:foreach="$constants as $item" n:class="$constant === $item ? active, $item->deprecated ? deprecated"><a href="{$item|constantUrl}">{if $namespace}{$item->shortName}{else}{$item->name}{/if}</a></li>
-			</ul>
+			{include #elements, elements => $constants, activeElement => $constant}
 			{/if}
 
 			{if $functions}
 			<h3>Functions</h3>
-			<ul>
-				<li n:foreach="$functions as $item" n:class="$function === $item ? active, $item->deprecated ? deprecated"><a href="{$item|functionUrl}">{if $namespace}{$item->shortName}{else}{$item->name}{/if}</a></li>
-			</ul>
+			{include #elements, elements => $functions, activeElement => $function}
 			{/if}
 		</div>
 	</div>
